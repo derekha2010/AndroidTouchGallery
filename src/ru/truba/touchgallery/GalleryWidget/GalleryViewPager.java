@@ -64,15 +64,11 @@ public class GalleryViewPager extends ViewPager {
 		float[] difference = handleMotionEvent(event);
 
 		if (difference != null && mCurrentView.getOnRightSide()
-				&& difference[0] < 0)
-
-		{
+				&& difference[0] < 0) {
 			return super.onTouchEvent(event);
 		}
 		if (difference != null && mCurrentView.getOnLeftSide()
-				&& difference[0] > 0)
-
-		{
+				&& difference[0] > 0) {
 			return super.onTouchEvent(event);
 		}
 		if (difference == null
@@ -93,15 +89,11 @@ public class GalleryViewPager extends ViewPager {
 		float[] difference = handleMotionEvent(event);
 
 		if (difference != null && mCurrentView.getOnRightSide()
-				&& difference[0] < 0)
-
-		{
+				&& difference[0] < 0) {
 			return super.onInterceptTouchEvent(event);
 		}
 		if (difference != null && mCurrentView.getOnLeftSide()
-				&& difference[0] > 0)
-
-		{
+				&& difference[0] > 0) {
 			return super.onInterceptTouchEvent(event);
 		}
 		if (difference == null
