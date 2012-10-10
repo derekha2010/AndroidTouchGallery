@@ -109,7 +109,7 @@ public class PZSImageView extends ImageView {
 		}
 
 		setImageMatrix(mCurrentMatrix);
-		canvas.drawRGB(200, 0, 0);
+		//canvas.drawRGB(200, 0, 0);
 
 		super.onDraw(canvas);
 	}
