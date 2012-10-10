@@ -20,6 +20,7 @@ package ru.truba.touchgallery;
 import android.app.Activity;
 import android.os.Bundle;
 import ru.truba.touchgallery.GalleryWidget.GalleryViewPager;
+import ru.truba.touchgallery.GalleryWidget.LocalPagerAdapter;
 import ru.truba.touchgallery.GalleryWidget.UrlPagerAdapter;
 
 import java.util.ArrayList;
@@ -32,6 +33,8 @@ public class GalleryActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        
+/*
         String[] urls = {
                 "http://cs407831.userapi.com/v407831207/18f6/jBaVZFDhXRA.jpg",
                 "http://cs407831.userapi.com/v407831207/18fe/4Tz8av5Hlvo.jpg",
@@ -43,10 +46,16 @@ public class GalleryActivity extends Activity {
         List<String> items = new ArrayList<String>();
         Collections.addAll(items, urls);
 
-        UrlPagerAdapter pagerAdapter = new UrlPagerAdapter(this, items);
+        UrlPagerAdapter urlPagerAdapter = new UrlPagerAdapter(this, items);
+*/
+        
+    	int images[] = { R.drawable.chrysanthemum, R.drawable.desert,
+    			R.drawable.hydrangeas, R.drawable.penguins };
+    	
+        LocalPagerAdapter localPagerAdapter = new LocalPagerAdapter(this,images);
         mViewPager = (GalleryViewPager)findViewById(R.id.viewer);
         mViewPager.setOffscreenPageLimit(3);
-        mViewPager.setAdapter(pagerAdapter);
+        mViewPager.setAdapter(localPagerAdapter);
     }
 
 }
