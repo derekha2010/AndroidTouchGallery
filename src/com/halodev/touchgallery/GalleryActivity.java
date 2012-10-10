@@ -34,11 +34,17 @@ public class GalleryActivity extends Activity {
 		UrlPagerAdapter urlPagerAdapter = new UrlPagerAdapter(this, items);
 */
 		// LocalPagerAdapter
+		
+		//From res
 		int images[] = { R.drawable.chrysanthemum, R.drawable.desert,
 				R.drawable.hydrangeas, R.drawable.penguins };
-
+		
+		//From assets
+		String imagesString[] = { "images/chrysanthemum.jpg", "images/desert.jpg",
+				"images/hydrangeas.jpg","images/penguins.jpg" };
+		
 		LocalPagerAdapter localPagerAdapter = new LocalPagerAdapter(this,
-				images);
+				imagesString);
 		mViewPager = (GalleryViewPager) findViewById(R.id.viewer);
 		mViewPager.setOffscreenPageLimit(3);
 		mViewPager.setAdapter(localPagerAdapter);

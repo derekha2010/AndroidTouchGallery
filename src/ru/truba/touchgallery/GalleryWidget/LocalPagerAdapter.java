@@ -1,5 +1,7 @@
 package ru.truba.touchgallery.GalleryWidget;
 
+import java.io.IOException;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -7,13 +9,15 @@ import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.LayoutParams;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import ru.truba.touchgallery.TouchView.PZSImageView;
 
 public class LocalPagerAdapter extends PagerAdapter {
 
-	private int mImages[];
+	private int mImagesInt[];
+	private String mImagesString[];
 
 	private Context mContext;
 
@@ -23,7 +27,12 @@ public class LocalPagerAdapter extends PagerAdapter {
 
 	public LocalPagerAdapter(Context context, int[] images) {
 		this.mContext = context;
-		mImages = images;
+		mImagesInt = images;
+	}
+
+	public LocalPagerAdapter(Context context, String[] images) {
+		this.mContext = context;
+		mImagesString = images;
 	}
 
 	@Override
@@ -35,9 +44,25 @@ public class LocalPagerAdapter extends PagerAdapter {
 	@Override
 	public Object instantiateItem(View collection, int position) {
 		PZSImageView iv = new PZSImageView(mContext);
-		Bitmap b = BitmapFactory.decodeResource(mContext.getResources(),
-				mImages[position]);
-		iv.setImageBitmap(b);
+
+		Bitmap b = null;
+		if (mImagesInt != null) {
+			b = BitmapFactory.decodeResource(mContext.getResources(),
+					mImagesInt[position]);
+
+		} else if (mImagesString != null) {
+			try {
+				b = BitmapFactory.decodeStream(mContext.getAssets().open(
+						mImagesString[position]));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				Log.e("IOException", mImagesString[position]);
+			}
+		}
+		
+		if (b != null)
+			iv.setImageBitmap(b);
 		LayoutParams p = new LayoutParams();
 		p.width = LayoutParams.MATCH_PARENT;
 		p.height = LayoutParams.MATCH_PARENT;
@@ -54,7 +79,13 @@ public class LocalPagerAdapter extends PagerAdapter {
 
 	@Override
 	public int getCount() {
-		return mImages.length;
+		if (mImagesInt != null)
+			return mImagesInt.length;
+		else if (mImagesString != null)
+			return mImagesString.length;
+		else
+			return 0;
+
 	}
 
 	@Override
