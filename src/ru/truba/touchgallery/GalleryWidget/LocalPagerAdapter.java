@@ -1,10 +1,13 @@
 package ru.truba.touchgallery.GalleryWidget;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Environment;
 import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -52,17 +55,19 @@ public class LocalPagerAdapter extends PagerAdapter {
 
 		} else if (mImagesString != null) {
 			try {
-				b = BitmapFactory.decodeStream(mContext.getAssets().open(
-						mImagesString[position]));
+				if (mImagesString[position].contains(Environment
+						.getExternalStorageDirectory().toString())) {
+					b = BitmapFactory.decodeStream(new FileInputStream(
+							new File((mImagesString[position]))));
+				} else {
+					b = BitmapFactory.decodeStream(mContext.getAssets().open(
+							mImagesString[position]));
+				}
+				iv.setImageBitmap(b);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 				Log.e("IOException", mImagesString[position]);
 			}
 		}
-
-		if (b != null)
-			iv.setImageBitmap(b);
 		LayoutParams p = new LayoutParams();
 		p.width = LayoutParams.MATCH_PARENT;
 		p.height = LayoutParams.MATCH_PARENT;
