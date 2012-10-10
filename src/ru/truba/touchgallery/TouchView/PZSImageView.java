@@ -30,17 +30,18 @@ public class PZSImageView extends ImageView {
 	protected static final int PZS_ACTION_SCALE_TO_TRANSLATE = 1003;
 	protected static final int PZS_ACTION_TRANSLATE_TO_SCALE = 1004;
 	protected static final int PZS_ACTION_FIT_CENTER = 1005;
+	protected static final int PZS_ACTION_CENTER_CROP = 1006;
 	protected static final int PZS_ACTION_CANCEL = -1;
 
 	// TODO below 2 values should be able to set from attributes.
 	private final static float MAX_SCALE_TO_SCREEN = 2.f;
-	private final static float MIN_SCALE_TO_SCREEN = .5f;
+	private final static float MIN_SCALE_TO_SCREEN = 1.f;
 
 	private static final long DOUBLE_TAP_MARGIN_TIME = 200;
 	private static final float MIN_SCALE_SPAN = 10.f;
 
 	// calculated min / max scale ratio based on image & screen size.
-	private float mMinScaleFactor = 0.5f;
+	private float mMinScaleFactor = 1.f;
 	private float mMaxScaleFactor = 2.f;
 
 	private boolean mIsFirstDraw = true; // check flag to calculate necessary
@@ -149,6 +150,10 @@ public class PZSImageView extends ImageView {
 			fitCenter();
 			initGestureAction(event.getX(), event.getY());
 			break;
+		case PZS_ACTION_CENTER_CROP:
+			centerCrop();
+			initGestureAction(event.getX(), event.getY());
+			break;
 		case PZS_ACTION_CANCEL:
 			break;
 		}
@@ -163,9 +168,20 @@ public class PZSImageView extends ImageView {
 
 		switch (ev.getAction() & MotionEvent.ACTION_MASK) {
 		case MotionEvent.ACTION_DOWN:
-			if (isDoubleTap(ev))
-				return PZS_ACTION_FIT_CENTER;
-			else
+			if (isDoubleTap(ev)) {
+				float values[] = new float[9];
+				mCurrentMatrix.getValues(values);
+				float scaleNow = values[Matrix.MSCALE_X];
+				float scaleX = (getWidth() - getPaddingLeft() - getPaddingRight())
+						/ (float) mImageWidth;
+				float scaleY = (getHeight() - getPaddingTop() - getPaddingBottom())
+						/ (float) mImageHeight;
+				if (scaleNow >= Math.max(scaleX, scaleY))
+					return PZS_ACTION_FIT_CENTER;
+				else if (scaleNow < Math.max(scaleX, scaleY))
+					return PZS_ACTION_CENTER_CROP;
+
+			} else
 				return PZS_ACTION_INIT;
 		case MotionEvent.ACTION_POINTER_DOWN:
 			// more than one pointer is pressed...
@@ -368,6 +384,24 @@ public class PZSImageView extends ImageView {
 		float scaleY = (getHeight() - getPaddingTop() - getPaddingBottom())
 				/ (float) mImageHeight;
 		float scale = Math.min(scaleX, scaleY);
+
+		float dx = (getWidth() - getPaddingLeft() - getPaddingRight() - mImageWidth
+				* scale) / 2.f;
+		float dy = (getHeight() - getPaddingTop() - getPaddingBottom() - mImageHeight
+				* scale) / 2.f;
+		mCurrentMatrix.postScale(scale, scale);
+		mCurrentMatrix.postTranslate(dx, dy);
+		setImageMatrix(mCurrentMatrix);
+	}
+
+	protected void centerCrop() {
+		mCurrentMatrix.reset();
+
+		float scaleX = (getWidth() - getPaddingLeft() - getPaddingRight())
+				/ (float) mImageWidth;
+		float scaleY = (getHeight() - getPaddingTop() - getPaddingBottom())
+				/ (float) mImageHeight;
+		float scale = Math.max(scaleX, scaleY);
 
 		float dx = (getWidth() - getPaddingLeft() - getPaddingRight() - mImageWidth
 				* scale) / 2.f;
