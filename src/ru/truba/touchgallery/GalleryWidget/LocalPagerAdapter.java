@@ -60,7 +60,7 @@ public class LocalPagerAdapter extends PagerAdapter {
 				Log.e("IOException", mImagesString[position]);
 			}
 		}
-		
+
 		if (b != null)
 			iv.setImageBitmap(b);
 		LayoutParams p = new LayoutParams();

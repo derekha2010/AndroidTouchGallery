@@ -23,7 +23,6 @@ public class PZSImageView extends ImageView {
 
 	private static final String TAG = "GalleryImageView"; // debug tag.
 
-
 	// wrapped motion event code.
 	protected static final int PZS_ACTION_INIT = 100;
 	protected static final int PZS_ACTION_SCALE = 1001;
@@ -109,7 +108,7 @@ public class PZSImageView extends ImageView {
 		}
 
 		setImageMatrix(mCurrentMatrix);
-		//canvas.drawRGB(200, 0, 0);
+		// canvas.drawRGB(200, 0, 0);
 
 		super.onDraw(canvas);
 	}
@@ -281,6 +280,26 @@ public class PZSImageView extends ImageView {
 
 	private RectF mTraslateLimitRect = new RectF(); // reuse instance.
 
+	public boolean getOnLeftSide() {
+		float values[] = new float[9];
+		mCurrentMatrix.getValues(values);
+		float tranX = values[Matrix.MTRANS_X];
+		if (tranX >= mTraslateLimitRect.right) {
+			return true;
+		}
+		return false;
+	}
+
+	public boolean getOnRightSide() {
+		float values[] = new float[9];
+		mCurrentMatrix.getValues(values);
+		float tranX = values[Matrix.MTRANS_X];
+		if (tranX <= mTraslateLimitRect.left) {
+			return true;
+		}
+		return false;
+	}
+
 	private void validateMatrix() {
 		float values[] = new float[9];
 		mCurrentMatrix.getValues(values);
@@ -326,20 +345,6 @@ public class PZSImageView extends ImageView {
 		newTranY = Math.max(newTranY, mTraslateLimitRect.top);
 		newTranY = Math.min(newTranY, mTraslateLimitRect.bottom);
 
-		if (tranX >= mTraslateLimitRect.right) {
-			Log.e("onLeftSide", "onLeftSide");
-			onLeftSide = true;
-		} else if (tranX <= mTraslateLimitRect.left) {
-			Log.e("onRightSide", "onRightSide");
-			onRightSide = true;
-		} else {
-			Log.e("false", "false");
-			onLeftSide = false;
-			onRightSide = false;
-		}
-		// Log.e("mTraslateLimitRect", ""+mTraslateLimitRect.left+" "+
-		// mTraslateLimitRect.right);
-		// Log.e("tranX", ""+tranX);
 		values[Matrix.MTRANS_X] = newTranX;
 		values[Matrix.MTRANS_Y] = newTranY;
 		mCurrentMatrix.setValues(values);
@@ -388,16 +393,6 @@ public class PZSImageView extends ImageView {
 		float x = event.getX(0) + event.getX(1);
 		float y = event.getY(0) + event.getY(1);
 		point.set(x / 2, y / 2);
-	}
-
-	float saveScale = 3f;
-	float minScale = 1f;
-
-	public boolean onLeftSide = false, onTopSide = false, onRightSide = false,
-			onBottomSide = false;
-
-	public boolean pagerCanScroll() {
-		return saveScale == minScale;
 	}
 
 }// end of class

@@ -58,42 +58,28 @@ public class GalleryViewPager extends ViewPager {
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {
-			//mCurrentView.onLeftSide=false;
-			//mCurrentView.onRightSide=false;
 			super.onTouchEvent(event);
 		}
 
-		if (mCurrentView.onLeftSide || mCurrentView.onRightSide) {
-			Log.e("onTouchEvent", "onTouchEvent");
+		float[] difference = handleMotionEvent(event);
+
+		if (difference != null && mCurrentView.getOnRightSide()
+				&& difference[0] < 0)
+
+		{
 			return super.onTouchEvent(event);
 		}
+		if (difference != null && mCurrentView.getOnLeftSide()
+				&& difference[0] > 0)
 
-		// float[] difference = handleMotionEvent(event);
-		//
-		// if (mCurrentView.pagerCanScroll()) {
-		// Log.e("pagerCanScroll", "pagerCanScroll");
-		// return super.onTouchEvent(event);
-		// }
-		// else {
-		// if (difference != null && mCurrentView.onRightSide && difference[0] <
-		// 0) //move right
-		// {
-		// Log.e("onRightSide", "onRightSide");
-		// return super.onTouchEvent(event);
-		// }
-		// if (difference != null && mCurrentView.onLeftSide && difference[0] >
-		// 0) //move left
-		// {
-		// Log.e("onLeftSide", "onLeftSide");
-		// return super.onTouchEvent(event);
-		// }
-		// if (difference == null && ( mCurrentView.onLeftSide ||
-		// mCurrentView.onRightSide))
-		// {
-		// Log.e("onLeftSideRight", "onLeftSideRight");
-		// return super.onTouchEvent(event);
-		// }
-		// }
+		{
+			return super.onTouchEvent(event);
+		}
+		if (difference == null
+				&& (mCurrentView.getOnLeftSide() || mCurrentView
+						.getOnRightSide())) {
+			return super.onTouchEvent(event);
+		}
 
 		return false;
 	}
@@ -101,36 +87,29 @@ public class GalleryViewPager extends ViewPager {
 	@Override
 	public boolean onInterceptTouchEvent(MotionEvent event) {
 		if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {
-			//mCurrentView.onLeftSide=false;
-			//mCurrentView.onRightSide=false;
 			super.onInterceptTouchEvent(event);
 		}
 
-		if (mCurrentView.onLeftSide || mCurrentView.onRightSide) {
-			Log.e("onInterceptTouchEvent", "onInterceptTouchEvent");
+		float[] difference = handleMotionEvent(event);
+
+		if (difference != null && mCurrentView.getOnRightSide()
+				&& difference[0] < 0)
+
+		{
+			return super.onInterceptTouchEvent(event);
+		}
+		if (difference != null && mCurrentView.getOnLeftSide()
+				&& difference[0] > 0)
+
+		{
+			return super.onInterceptTouchEvent(event);
+		}
+		if (difference == null
+				&& (mCurrentView.getOnLeftSide() || mCurrentView
+						.getOnRightSide())) {
 			return super.onInterceptTouchEvent(event);
 		}
 
-		// float[] difference = handleMotionEvent(event);
-		//
-		// if (mCurrentView.pagerCanScroll()) {
-		// return super.onInterceptTouchEvent(event);
-		// } else {
-		// if (difference != null && mCurrentView.onRightSide
-		// && difference[0] < 0) // move right
-		// {
-		// return super.onInterceptTouchEvent(event);
-		// }
-		// if (difference != null && mCurrentView.onLeftSide
-		// && difference[0] > 0) // move left
-		// {
-		// return super.onInterceptTouchEvent(event);
-		// }
-		// if (difference == null
-		// && (mCurrentView.onLeftSide || mCurrentView.onRightSide)) {
-		// return super.onInterceptTouchEvent(event);
-		// }
-		// }
 		return false;
 	}
 }
