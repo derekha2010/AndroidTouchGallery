@@ -7,6 +7,7 @@ import java.io.IOException;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
@@ -47,34 +48,54 @@ public class LocalPagerAdapter extends PagerAdapter {
 	@Override
 	public Object instantiateItem(View collection, int position) {
 		PZSImageView iv = new PZSImageView(mContext);
-
-		Bitmap b = null;
-		if (mImagesInt != null) {
-			b = BitmapFactory.decodeResource(mContext.getResources(),
-					mImagesInt[position]);
-
-		} else if (mImagesString != null) {
-			try {
-				if (mImagesString[position].contains(Environment
-						.getExternalStorageDirectory().toString())) {
-					b = BitmapFactory.decodeStream(new FileInputStream(
-							new File((mImagesString[position]))));
-				} else {
-					b = BitmapFactory.decodeStream(mContext.getAssets().open(
-							mImagesString[position]));
-				}
-				iv.setImageBitmap(b);
-			} catch (IOException e) {
-				Log.e("IOException", mImagesString[position]);
-			}
-		}
 		LayoutParams p = new LayoutParams();
 		p.width = LayoutParams.MATCH_PARENT;
 		p.height = LayoutParams.MATCH_PARENT;
 		iv.setLayoutParams(p);
 
 		((ViewPager) collection).addView(iv, 0);
+
+		new ImageTask(iv).execute(position);
+
 		return iv;
+	}
+
+	class ImageTask extends AsyncTask<Integer, Object, Bitmap> {
+		PZSImageView v;
+
+		public ImageTask(PZSImageView v) {
+			this.v = v;
+		}
+
+		@Override
+		protected void onPostExecute(Bitmap result) {
+			if (result != null)
+				v.setImageBitmap(result);
+		}
+
+		@Override
+		protected Bitmap doInBackground(Integer... params) {
+			Bitmap b = null;
+			if (mImagesInt != null) {
+				b = BitmapFactory.decodeResource(mContext.getResources(),
+						mImagesInt[params[0]]);
+
+			} else if (mImagesString != null) {
+				try {
+					if (mImagesString[params[0]].contains(Environment
+							.getExternalStorageDirectory().toString())) {
+						b = BitmapFactory.decodeStream(new FileInputStream(
+								new File((mImagesString[params[0]]))));
+					} else {
+						b = BitmapFactory.decodeStream(mContext.getAssets()
+								.open(mImagesString[params[0]]));
+					}
+				} catch (IOException e) {
+					Log.e("IOException", mImagesString[params[0]]);
+				}
+			}
+			return b;
+		}
 	}
 
 	@Override
