@@ -3,6 +3,7 @@ package com.halodev.touchgallery;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Environment;
+import android.view.View;
 
 import com.halodev.touchgallery.R;
 import ru.truba.touchgallery.GalleryWidget.GalleryViewPager;
@@ -60,4 +61,22 @@ public class GalleryActivity extends Activity {
 		mViewPager.setAdapter(localPagerAdapter);
 	}
 
+	public void leftBtn(View v) {
+		if (mViewPager.mCurrentView.getOnLeftSide()) {
+			mViewPager.setCurrentItem(mViewPager.getCurrentItem() - 1, true);
+		} else {
+			mViewPager.mCurrentView.toLeftSide();
+
+		}
+	}
+
+	public void rightBtn(View v) {
+		if (mViewPager.mCurrentView.getOnRightSide()) {
+			mViewPager.setCurrentItem(mViewPager.getCurrentItem() + 1, true);
+		} else {
+			mViewPager.mCurrentView.toRightSide();
+
+		}
+
+	}
 }
