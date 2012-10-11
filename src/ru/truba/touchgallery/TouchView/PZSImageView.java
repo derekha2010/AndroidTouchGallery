@@ -21,6 +21,13 @@ import android.widget.ImageView;
  */
 public class PZSImageView extends ImageView {
 
+	enum ImageScaleType {
+		FitCenter, TopCrop, CenterCrop
+	};
+
+	public ImageScaleType defaultScaleType = ImageScaleType.TopCrop;
+	public ImageScaleType doubleTapScaleType = ImageScaleType.TopCrop;
+
 	private static final String TAG = "GalleryImageView"; // debug tag.
 
 	// wrapped motion event code.
@@ -107,7 +114,12 @@ public class PZSImageView extends ImageView {
 
 		if (mIsFirstDraw == true) {
 			mIsFirstDraw = false;
-			fitCenter();
+			if (defaultScaleType == ImageScaleType.FitCenter)
+				fitCenter();
+			else if (defaultScaleType == ImageScaleType.TopCrop)
+				topCrop();
+			else if (defaultScaleType == ImageScaleType.CenterCrop)
+				centerCrop();
 			calculateScaleFactorLimit();
 			validateMatrix();
 		}
@@ -192,8 +204,14 @@ public class PZSImageView extends ImageView {
 						/ (float) mImageHeight;
 				if (scaleNow >= Math.max(scaleX, scaleY))
 					return PZS_ACTION_FIT_CENTER;
-				else if (scaleNow < Math.max(scaleX, scaleY))
-					return PZS_ACTION_TOP_CROP;
+				else if (scaleNow < Math.max(scaleX, scaleY)) {
+					if (doubleTapScaleType == ImageScaleType.FitCenter)
+						return PZS_ACTION_FIT_CENTER;
+					else if (doubleTapScaleType == ImageScaleType.TopCrop)
+						return PZS_ACTION_TOP_CROP;
+					else if (doubleTapScaleType == ImageScaleType.CenterCrop)
+						return PZS_ACTION_CENTER_CROP;
+				}
 			} else
 				return PZS_ACTION_INIT;
 		case MotionEvent.ACTION_POINTER_DOWN:
