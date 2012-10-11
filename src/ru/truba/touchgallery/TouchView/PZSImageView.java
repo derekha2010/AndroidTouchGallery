@@ -31,6 +31,9 @@ public class PZSImageView extends ImageView {
 	protected static final int PZS_ACTION_TRANSLATE_TO_SCALE = 1004;
 	protected static final int PZS_ACTION_FIT_CENTER = 1005;
 	protected static final int PZS_ACTION_CENTER_CROP = 1006;
+	protected static final int PZS_ACTION_TO_LEFT_SIDE = 1007;
+	protected static final int PZS_ACTION_TO_RIGHT_SIDE = 1008;
+	protected static final int PZS_ACTION_TOP_CROP = 1009;
 	protected static final int PZS_ACTION_CANCEL = -1;
 
 	// TODO below 2 values should be able to set from attributes.
@@ -106,6 +109,7 @@ public class PZSImageView extends ImageView {
 			mIsFirstDraw = false;
 			fitCenter();
 			calculateScaleFactorLimit();
+			validateMatrix();
 		}
 
 		setImageMatrix(mCurrentMatrix);
@@ -154,6 +158,16 @@ public class PZSImageView extends ImageView {
 			centerCrop();
 			initGestureAction(event.getX(), event.getY());
 			break;
+		case PZS_ACTION_TOP_CROP:
+			topCrop();
+			initGestureAction(event.getX(), event.getY());
+			break;
+		case PZS_ACTION_TO_LEFT_SIDE:
+			toLeftSide();
+			break;
+		case PZS_ACTION_TO_RIGHT_SIDE:
+			toRightSide();
+			break;
 		case PZS_ACTION_CANCEL:
 			break;
 		}
@@ -179,8 +193,7 @@ public class PZSImageView extends ImageView {
 				if (scaleNow >= Math.max(scaleX, scaleY))
 					return PZS_ACTION_FIT_CENTER;
 				else if (scaleNow < Math.max(scaleX, scaleY))
-					return PZS_ACTION_CENTER_CROP;
-
+					return PZS_ACTION_TOP_CROP;
 			} else
 				return PZS_ACTION_INIT;
 		case MotionEvent.ACTION_POINTER_DOWN:
@@ -394,6 +407,22 @@ public class PZSImageView extends ImageView {
 		setImageMatrix(mCurrentMatrix);
 	}
 
+	public void toLeftSide() {
+		float values[] = new float[9];
+		mCurrentMatrix.getValues(values);
+		float tranX = values[Matrix.MTRANS_X];
+		mCurrentMatrix.postTranslate(mTraslateLimitRect.right - tranX, 0);
+		setImageMatrix(mCurrentMatrix);
+	}
+
+	public void toRightSide() {
+		float values[] = new float[9];
+		mCurrentMatrix.getValues(values);
+		float tranX = values[Matrix.MTRANS_X];
+		mCurrentMatrix.postTranslate(mTraslateLimitRect.left - tranX, 0);
+		setImageMatrix(mCurrentMatrix);
+	}
+
 	protected void centerCrop() {
 		mCurrentMatrix.reset();
 
@@ -410,6 +439,20 @@ public class PZSImageView extends ImageView {
 
 		mCurrentMatrix.postScale(scale, scale);
 		mCurrentMatrix.postTranslate(dx, dy);
+		setImageMatrix(mCurrentMatrix);
+	}
+
+	protected void topCrop() {
+		mCurrentMatrix.reset();
+
+		float scaleX = (getWidth() - getPaddingLeft() - getPaddingRight())
+				/ (float) mImageWidth;
+		float scaleY = (getHeight() - getPaddingTop() - getPaddingBottom())
+				/ (float) mImageHeight;
+		float scale = Math.max(scaleX, scaleY);
+
+		mCurrentMatrix.postScale(scale, scale);
+		mCurrentMatrix.postTranslate(0, 0);
 		setImageMatrix(mCurrentMatrix);
 	}
 
