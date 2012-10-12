@@ -57,11 +57,12 @@ public class GalleryActivity extends Activity {
 		LocalPagerAdapter localPagerAdapter = new LocalPagerAdapter(this,
 				imagesString);
 		mViewPager = (GalleryViewPager) findViewById(R.id.viewer);
+		mViewPager.setPageMargin(10);
 		mViewPager.setOffscreenPageLimit(3);
 		mViewPager.setAdapter(localPagerAdapter);
 	}
 
-	public void leftBtn(View v) {
+	public void leftBtn() {
 		if (mViewPager.mCurrentView.getOnLeftSide()) {
 			mViewPager.setCurrentItem(mViewPager.getCurrentItem() - 1, true);
 		} else {
@@ -70,7 +71,7 @@ public class GalleryActivity extends Activity {
 		}
 	}
 
-	public void rightBtn(View v) {
+	public void rightBtn() {
 		if (mViewPager.mCurrentView.getOnRightSide()) {
 			mViewPager.setCurrentItem(mViewPager.getCurrentItem() + 1, true);
 		} else {

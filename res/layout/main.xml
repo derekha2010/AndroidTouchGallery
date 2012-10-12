@@ -9,19 +9,4 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" />
 
-    <View
-        android:layout_width="50dp"
-        android:layout_height="fill_parent"
-        android:clickable="true"
-        android:onClick="leftBtn" >
-    </View>
-
-    <View
-        android:layout_width="50dp"
-        android:layout_height="fill_parent"
-        android:layout_alignParentRight="true"
-        android:clickable="true"
-        android:onClick="rightBtn" >
-    </View>
-
 </RelativeLayout>

@@ -1,15 +1,18 @@
 package ru.truba.touchgallery.TouchView;
 
+import com.halodev.touchgallery.GalleryActivity;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.PointF;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.FloatMath;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import android.widget.ImageView;
 
@@ -25,7 +28,7 @@ public class PZSImageView extends ImageView {
 		FitCenter, TopCrop, CenterCrop
 	};
 
-	public ImageScaleType defaultScaleType = ImageScaleType.TopCrop;
+	public ImageScaleType defaultScaleType = ImageScaleType.FitCenter;
 	public ImageScaleType doubleTapScaleType = ImageScaleType.TopCrop;
 
 	private static final String TAG = "GalleryImageView"; // debug tag.
@@ -47,7 +50,6 @@ public class PZSImageView extends ImageView {
 	private final static float MAX_SCALE_TO_SCREEN = 2.f;
 	private final static float MIN_SCALE_TO_SCREEN = 1.f;
 
-	private static final long DOUBLE_TAP_MARGIN_TIME = 200;
 	private static final float MIN_SCALE_SPAN = 10.f;
 
 	// calculated min / max scale ratio based on image & screen size.
@@ -59,6 +61,8 @@ public class PZSImageView extends ImageView {
 	private int mImageWidth; // current set image width
 	private int mImageHeight; // current set image height
 
+	private Context mContext;
+
 	/**
 	 * constructor
 	 * 
@@ -66,7 +70,9 @@ public class PZSImageView extends ImageView {
 	 */
 	public PZSImageView(Context context) {
 		super(context);
+		mContext = context;
 		init();
+
 	}
 
 	/**
@@ -76,7 +82,9 @@ public class PZSImageView extends ImageView {
 	 */
 	public PZSImageView(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		mContext = context;
 		init();
+
 	}
 
 	/**
@@ -86,6 +94,7 @@ public class PZSImageView extends ImageView {
 	 */
 	public PZSImageView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
+		mContext = context;
 		init();
 	}
 
@@ -95,7 +104,32 @@ public class PZSImageView extends ImageView {
 		Matrix mat = getImageMatrix();
 		mat.reset();
 		setImageMatrix(mat);
+
+		gd = new GestureDetector(mContext, new SimpleOnGestureListener() {
+
+			@Override
+			public boolean onDoubleTap(MotionEvent event) {
+				int action = parseDoubleTapMotionEvent(event);
+				touchAction(action, event);
+				return true; // indicate event was handled
+			}
+
+			@Override
+			public boolean onSingleTapConfirmed(MotionEvent ev) {
+				if (ev.getX() < 200) {
+					//TODO connected to demo activity
+					((GalleryActivity) mContext).leftBtn();
+				} else if (ev.getX() > getWidth() - 200) {
+					//TODO connected to demo activity
+					((GalleryActivity) mContext).rightBtn();
+				}
+				return true;
+			}
+
+		});
 	}
+
+	GestureDetector gd;
 
 	// TODO how to handle bitmaps that set as different ways. (by res or src
 	// attr)
@@ -142,9 +176,15 @@ public class PZSImageView extends ImageView {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-
+		if (gd.onTouchEvent(event)) {
+			return true;
+		}
 		int action = parseMotionEvent(event);
+		touchAction(action, event);
+		return true; // indicate event was handled
+	}
 
+	private void touchAction(int action, MotionEvent event) {
 		switch (action) {
 		case PZS_ACTION_INIT:
 			initGestureAction(event.getX(), event.getY());
@@ -187,33 +227,35 @@ public class PZSImageView extends ImageView {
 		// check current position of bitmap.
 		validateMatrix();
 		updateMatrix();
-		return true; // indicate event was handled
+	}
+
+	private int parseDoubleTapMotionEvent(MotionEvent ev) {
+		float values[] = new float[9];
+		mCurrentMatrix.getValues(values);
+		float scaleNow = values[Matrix.MSCALE_X];
+		float scaleX = (getWidth() - getPaddingLeft() - getPaddingRight())
+				/ (float) mImageWidth;
+		float scaleY = (getHeight() - getPaddingTop() - getPaddingBottom())
+				/ (float) mImageHeight;
+		if (scaleNow >= Math.max(scaleX, scaleY))
+			return PZS_ACTION_FIT_CENTER;
+		else if (scaleNow < Math.max(scaleX, scaleY)) {
+			if (doubleTapScaleType == ImageScaleType.FitCenter)
+				return PZS_ACTION_FIT_CENTER;
+			else if (doubleTapScaleType == ImageScaleType.TopCrop)
+				return PZS_ACTION_TOP_CROP;
+			else if (doubleTapScaleType == ImageScaleType.CenterCrop)
+				return PZS_ACTION_CENTER_CROP;
+
+		}
+		return PZS_ACTION_FIT_CENTER;
 	}
 
 	private int parseMotionEvent(MotionEvent ev) {
 
 		switch (ev.getAction() & MotionEvent.ACTION_MASK) {
 		case MotionEvent.ACTION_DOWN:
-			if (isDoubleTap(ev)) {
-				float values[] = new float[9];
-				mCurrentMatrix.getValues(values);
-				float scaleNow = values[Matrix.MSCALE_X];
-				float scaleX = (getWidth() - getPaddingLeft() - getPaddingRight())
-						/ (float) mImageWidth;
-				float scaleY = (getHeight() - getPaddingTop() - getPaddingBottom())
-						/ (float) mImageHeight;
-				if (scaleNow >= Math.max(scaleX, scaleY))
-					return PZS_ACTION_FIT_CENTER;
-				else if (scaleNow < Math.max(scaleX, scaleY)) {
-					if (doubleTapScaleType == ImageScaleType.FitCenter)
-						return PZS_ACTION_FIT_CENTER;
-					else if (doubleTapScaleType == ImageScaleType.TopCrop)
-						return PZS_ACTION_TOP_CROP;
-					else if (doubleTapScaleType == ImageScaleType.CenterCrop)
-						return PZS_ACTION_CENTER_CROP;
-				}
-			} else
-				return PZS_ACTION_INIT;
+			return PZS_ACTION_INIT;
 		case MotionEvent.ACTION_POINTER_DOWN:
 			// more than one pointer is pressed...
 			return PZS_ACTION_TRANSLATE_TO_SCALE;
@@ -250,30 +292,6 @@ public class PZSImageView extends ImageView {
 		mSavedMatrix.set(mCurrentMatrix);
 		mStartPoint.set(x, y);
 		mInitScaleSpan = 0.f;
-	}
-
-	/**
-	 * check user double tapped this view.. or not.
-	 * 
-	 * @param current
-	 *            motion event.
-	 * @return true if user double tapped this view.
-	 */
-	private long mLastTocuhDownTime = 0;
-
-	protected boolean isDoubleTap(MotionEvent ev) {
-		// if old pointer is tapped?
-		if (ev.getPointerCount() > 1) {
-			// if there are more than one pointer... reset
-			mLastTocuhDownTime = 0;
-			return false;
-		}
-
-		long downTime = ev.getDownTime();
-		long diff = downTime - mLastTocuhDownTime;
-		mLastTocuhDownTime = downTime;
-
-		return diff < DOUBLE_TAP_MARGIN_TIME;
 	}
 
 	protected void handleScale(MotionEvent event) {
