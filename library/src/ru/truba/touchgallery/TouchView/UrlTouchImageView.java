@@ -53,13 +53,13 @@ public class UrlTouchImageView extends RelativeLayout {
 
     protected void init() {
         mImageView = new PZSImageView(mContext);
-        LayoutParams params = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+        LayoutParams params = new LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.MATCH_PARENT);
         mImageView.setLayoutParams(params);
         this.addView(mImageView);
         mImageView.setVisibility(GONE);
 
         mProgressBar = new ProgressBar(mContext, null, android.R.attr.progressBarStyleHorizontal);
-        params = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
+        params = new LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
         params.addRule(RelativeLayout.CENTER_VERTICAL);
         params.setMargins(30, 0, 30, 0);
         mProgressBar.setLayoutParams(params);

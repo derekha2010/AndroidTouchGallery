@@ -1,6 +1,6 @@
 package ru.truba.touchgallery.TouchView;
 
-import com.halodev.touchgallery.GalleryActivity;
+import com.halodev.touchgallery.AbstractGalleryActivity;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -10,7 +10,6 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.FloatMath;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
@@ -31,7 +30,7 @@ public class PZSImageView extends ImageView {
 	public ImageScaleType defaultScaleType = ImageScaleType.FitCenter;
 	public ImageScaleType doubleTapScaleType = ImageScaleType.TopCrop;
 
-	private static final String TAG = "GalleryImageView"; // debug tag.
+	// private static final String TAG = "GalleryImageView";
 
 	// wrapped motion event code.
 	protected static final int PZS_ACTION_INIT = 100;
@@ -116,12 +115,18 @@ public class PZSImageView extends ImageView {
 
 			@Override
 			public boolean onSingleTapConfirmed(MotionEvent ev) {
-				if (ev.getX() < 200) {
-					//TODO connected to demo activity
-					((GalleryActivity) mContext).leftBtn();
-				} else if (ev.getX() > getWidth() - 200) {
-					//TODO connected to demo activity
-					((GalleryActivity) mContext).rightBtn();
+				if (ev.getY() > getHeight() - 200) {
+					((AbstractGalleryActivity) mContext).bottomBtn();
+				} else if (ev.getY() < 200) {
+					((AbstractGalleryActivity) mContext).topBtn();
+				} else {
+					if (ev.getX() < 200) {
+						((AbstractGalleryActivity) mContext).leftBtn();
+					} else if (ev.getX() > getWidth() - 200) {
+						((AbstractGalleryActivity) mContext).rightBtn();
+					} else {
+						((AbstractGalleryActivity) mContext).centerBtn();
+					}
 				}
 				return true;
 			}
